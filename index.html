@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File to Code Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007BFF;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #007BFF;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-size: 14px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 2px solid #ccc;
+      font-size: 14px;
+      resize: none;
+      background-color: #f9f9f9;
+      min-height: 120px;
+    }
+
+    .file-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .file-actions button {
+      width: 48%;
+    }
+
+    .file-actions input {
+      width: 48%;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>File to Code Converter</h2>
+
+    <!-- File to Code Section -->
+    <div class="section">
+      <h3>Convert File to Short Code</h3>
+      <input type="file" id="fileInput">
+      <button onclick="encodeFile()">Generate Short Code</button>
+      <textarea id="codeOutput" readonly placeholder="Generated short code will appear here..."></textarea>
+    </div>
+
+    <!-- Code to File Section -->
+    <div class="section">
+      <h3>Convert Short Code to File</h3>
+      <textarea id="codeInput" placeholder="Paste code here..."></textarea>
+      <div class="file-actions">
+        <button onclick="decodeFile()">Decode File</button>
+        <button onclick="saveFile()">Save to Device</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>&copy; 2025 File to Code Converter | All rights reserved</p>
+    </div>
+  </div>
+
+  <script>
+    let generatedFile;
+
+    // Encode the file to a custom short code (12 characters)
+    function encodeFile() {
+      const fileInput = document.getElementById('fileInput');
+      const codeOutput = document.getElementById('codeOutput');
+      
+      if (!fileInput.files.length) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function(event) {
+        // Get the file's first few bytes and create a base64 string
+        const base64String = btoa(String.fromCharCode(...new Uint8Array(event.target.result)));
+        
+        // Make the string short (e.g., first 12 characters)
+        const shortCode = base64String.slice(0, 12); // Limiting it to 12 characters
+        codeOutput.value = shortCode;
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Decode the short code back to the file (works only for very small files)
+    function decodeFile() {
+      const codeInput = document.getElementById('codeInput').value;
+      
+      if (!codeInput) {
+        alert("Please enter a short code.");
+        return;
+      }
+
+      try {
+        // Use the short code (assuming it's a Base64-encoded snippet)
+        const binaryString = atob(codeInput);
+        const binaryArray = new Uint8Array(binaryString.length);
+        
+        for (let i = 0; i < binaryString.length; i++) {
+          binaryArray[i] = binaryString.charCodeAt(i);
+        }
+
+        generatedFile = new Blob([binaryArray]);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(generatedFile);
+        link.download = 'output.dat'; // generic name for download
+        link.click();
+      } catch (error) {
+        alert("Error: Invalid code or unsupported file.");
+      }
+    }
+
+    // Save the generated file
+    function saveFile() {
+      if (!generatedFile) {
+        alert("No file to save. Decode a code first.");
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(generatedFile);
+      link.download = 'output.dat'; // generic name for download
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
